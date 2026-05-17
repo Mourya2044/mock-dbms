@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mock DBMS - SQL & PL/SQL Practice</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- CodeMirror 5 CDN for simplicity and robust support -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/material-darker.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/sql/sql.min.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Top Navbar -->
+        <header class="navbar">
+            <div class="nav-left">
+                <span class="logo">Mock DBMS</span>
+                <span class="badge">SQL & PL/SQL Playground</span>
+            </div>
+            <div class="nav-right">
+                <div class="mode-selector">
+                    <label for="exec-mode">Mode:</label>
+                    <select id="exec-mode">
+                        <option value="auto">Auto-Detect</option>
+                        <option value="sql">Pure SQL</option>
+                        <option value="plsql">PL/SQL</option>
+                    </select>
+                </div>
+                <button id="btn-format" class="btn btn-secondary">Format</button>
+                <button id="btn-clear" class="btn btn-secondary">Clear</button>
+                <button id="btn-run" class="btn btn-primary">Run (Ctrl+Enter)</button>
+            </div>
+        </header>
+
+        <!-- Main Layout -->
+        <main class="main-content">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-tabs">
+                    <button class="tab-btn active" data-tab="schema-tab">Schema</button>
+                    <button class="tab-btn" data-tab="snippets-tab">Snippets</button>
+                    <button class="tab-btn" data-tab="cheatsheet-tab">Cheatsheet</button>
+                </div>
+                
+                <div class="sidebar-panels">
+                    <!-- Schema Panel -->
+                    <div id="schema-tab" class="panel active">
+                        <div class="panel-header">
+                            <h3>Database Schema</h3>
+                            <button id="btn-refresh-schema" class="btn-icon" title="Refresh Schema">↻</button>
+                        </div>
+                        <div id="schema-accordion" class="accordion">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Snippets Panel -->
+                    <div id="snippets-tab" class="panel">
+                        <div class="panel-header">
+                            <h3>Practice Templates</h3>
+                        </div>
+                        <ul id="snippets-list" class="item-list">
+                            <!-- Populated dynamically -->
+                        </ul>
+                    </div>
+
+                    <!-- Cheatsheet Panel -->
+                    <div id="cheatsheet-tab" class="panel">
+                        <div class="panel-header">
+                            <h3>PL/SQL Quick Ref</h3>
+                        </div>
+                        <div class="cheatsheet-content">
+                            <h4>Anonymous Block</h4>
+                            <pre><code>DECLARE
+  v_num NUMBER := 10;
+BEGIN
+  DBMS_OUTPUT.PUT_LINE(v_num);
+END;</code></pre>
+                            <h4>Cursor FOR Loop</h4>
+                            <pre><code>FOR r IN (SELECT * FROM emp) LOOP
+  DBMS_OUTPUT.PUT_LINE(r.ename);
+END LOOP;</code></pre>
+                            <h4>IF / ELSIF</h4>
+                            <pre><code>IF cond THEN ...
+ELSIF cond THEN ...
+ELSE ...
+END IF;</code></pre>
+                            <h4>Stored Procedure</h4>
+                            <pre><code>CREATE OR REPLACE PROCEDURE
+my_proc(p1 NUMBER) AS
+BEGIN
+  ...
+END;</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Workspace (Editor + Results) -->
+            <div class="workspace">
+                <!-- Editor Section -->
+                <section class="editor-section">
+                    <div class="ai-bar">
+                        <input type="text" id="ai-prompt" placeholder="Ask AI to create tables or insert mock data...">
+                        <button id="btn-ai" class="btn btn-primary">Ask AI</button>
+                    </div>
+                    <textarea id="sql-editor"></textarea>
+                </section>
+
+                <!-- Results Section -->
+                <section class="results-section">
+                    <div class="results-header">
+                        <div class="results-tabs">
+                            <button class="res-tab-btn active" data-restab="query-results-tab">Query Results (<span id="count-rows">0</span>)</button>
+                            <button class="res-tab-btn" data-restab="dbms-output-tab">DBMS Output (<span id="count-dbms">0</span>)</button>
+                            <button class="res-tab-btn" data-restab="log-tab">Execution Log</button>
+                        </div>
+                        <div class="results-meta">
+                            <span id="meta-time">Time: 0 ms</span> | <span id="meta-status" class="status-badge">Ready</span>
+                        </div>
+                    </div>
+
+                    <div class="results-panels">
+                        <!-- Query Results Table -->
+                        <div id="query-results-tab" class="res-panel active">
+                            <div class="table-container">
+                                <table id="results-table" class="data-table">
+                                    <thead><tr id="table-head"><th>No data to display. Run a SELECT query.</th></tr></thead>
+                                    <tbody id="table-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- DBMS Output -->
+                        <div id="dbms-output-tab" class="res-panel">
+                            <pre id="dbms-console" class="console-output">DBMS_OUTPUT lines will appear here...</pre>
+                        </div>
+
+                        <!-- Execution Log -->
+                        <div id="log-tab" class="res-panel">
+                            <pre id="log-console" class="console-output">System ready. Select a snippet or write a query to begin.</pre>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Custom JS -->
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
