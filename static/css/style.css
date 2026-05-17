@@ -283,6 +283,61 @@ body {
     font-weight: 600;
 }
 
+.btn-view-data {
+    background: none;
+    border: 1px solid var(--border-color);
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-view-data:hover {
+    color: var(--text-main);
+    border-color: var(--border-color-focus);
+    background-color: var(--bg-surface-hover);
+}
+
+.preview-header {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin: 16px 0 8px 0;
+    text-transform: uppercase;
+}
+
+.schema-preview-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-ui);
+    font-size: 0.75rem;
+    margin-top: 4px;
+    display: block;
+    overflow-x: auto;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.schema-preview-table th, .schema-preview-table td {
+    padding: 4px 8px;
+    border: 1px solid var(--border-color);
+    text-align: left;
+    white-space: nowrap;
+}
+
+.schema-preview-table th {
+    background-color: var(--bg-main);
+    color: var(--text-muted);
+    position: sticky;
+    top: 0;
+}
+
+.schema-preview-table tr:hover td {
+    background-color: var(--bg-surface-hover);
+}
+
 /* Snippets List */
 .item-list {
     list-style: none;

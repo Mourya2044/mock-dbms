@@ -9,9 +9,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Initialize database
-db.init_db()
-
 async def handle_ai(request):
     try:
         data = await request.json()

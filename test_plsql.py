@@ -2,9 +2,6 @@ import db
 import plsql_interpreter
 
 def run_tests():
-    print("--- Initializing DB ---")
-    db.init_db()
-    
     print("\n--- Test 1: Pure SQL DUAL ---")
     res1 = db.execute_sql("SELECT sysdate(), initcap('test') FROM DUAL;")
     print("Columns:", res1['columns'])

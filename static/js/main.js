@@ -216,7 +216,17 @@ ORDER BY sal DESC;`);
 
             const header = document.createElement('div');
             header.className = 'accordion-header';
-            header.innerHTML = `<span>${tableName}</span><span>${tableInfo.columns.length} cols</span>`;
+            header.innerHTML = `<span>${tableName}</span><div><button class="btn-view-data" title="View all rows in Results tab">🔍 View Data</button> <span style="margin-left:8px;">${tableInfo.columns.length} cols</span></div>`;
+
+            const btnView = header.querySelector('.btn-view-data');
+            btnView.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const colNames = tableInfo.columns.map(c => c.name);
+                renderTable(colNames, tableInfo.sample_data || []);
+                countRows.textContent = (tableInfo.sample_data || []).length;
+                switchResultTab('query-results-tab');
+                logMessage(`[VIEW DATA] Displaying live rows for table ${tableName}.`);
+            });
 
             const body = document.createElement('div');
             body.className = 'accordion-body';
@@ -231,6 +241,41 @@ ORDER BY sal DESC;`);
             });
 
             body.appendChild(colList);
+
+            // Mini Preview Table
+            if (tableInfo.sample_data && tableInfo.sample_data.length > 0) {
+                const previewTitle = document.createElement('div');
+                previewTitle.className = 'preview-header';
+                previewTitle.textContent = `Live Data Preview (${tableInfo.sample_data.length} rows)`;
+                body.appendChild(previewTitle);
+
+                const previewTable = document.createElement('table');
+                previewTable.className = 'schema-preview-table';
+                
+                const thead = document.createElement('thead');
+                const trHead = document.createElement('tr');
+                tableInfo.columns.forEach(col => {
+                    const th = document.createElement('th');
+                    th.textContent = col.name;
+                    trHead.appendChild(th);
+                });
+                thead.appendChild(trHead);
+                previewTable.appendChild(thead);
+
+                const tbody = document.createElement('tbody');
+                tableInfo.sample_data.forEach(row => {
+                    const tr = document.createElement('tr');
+                    row.forEach(val => {
+                        const td = document.createElement('td');
+                        td.textContent = val === null ? 'NULL' : val;
+                        tr.appendChild(td);
+                    });
+                    tbody.appendChild(tr);
+                });
+                previewTable.appendChild(tbody);
+                body.appendChild(previewTable);
+            }
+
             item.appendChild(header);
             item.appendChild(body);
 

@@ -137,108 +137,6 @@ def get_connection():
     
     return conn
 
-def init_db():
-    conn = get_connection()
-    cursor = conn.cursor()
-    
-    # DUAL table
-    cursor.execute("CREATE TABLE IF NOT EXISTS DUAL (DUMMY VARCHAR2(1))")
-    cursor.execute("SELECT count(*) FROM DUAL")
-    if cursor.fetchone()[0] == 0:
-        cursor.execute("INSERT INTO DUAL (DUMMY) VALUES ('X')")
-
-    # DEPT table
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS DEPT (
-        DEPTNO NUMBER(2) PRIMARY KEY,
-        DNAME VARCHAR2(14),
-        LOC VARCHAR2(13)
-    )
-    """)
-    cursor.execute("SELECT count(*) FROM DEPT")
-    if cursor.fetchone()[0] == 0:
-        depts = [
-            (10, 'ACCOUNTING', 'NEW YORK'),
-            (20, 'RESEARCH', 'DALLAS'),
-            (30, 'SALES', 'CHICAGO'),
-            (40, 'OPERATIONS', 'BOSTON')
-        ]
-        cursor.executemany("INSERT INTO DEPT VALUES (?, ?, ?)", depts)
-
-    # EMP table
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS EMP (
-        EMPNO NUMBER(4) PRIMARY KEY,
-        ENAME VARCHAR2(10),
-        JOB VARCHAR2(9),
-        MGR NUMBER(4),
-        HIREDATE DATE,
-        SAL NUMBER(7,2),
-        COMM NUMBER(7,2),
-        DEPTNO NUMBER(2)
-    )
-    """)
-    cursor.execute("SELECT count(*) FROM EMP")
-    if cursor.fetchone()[0] == 0:
-        emps = [
-            (7369, 'SMITH', 'CLERK', 7902, '1980-12-17', 800, None, 20),
-            (7499, 'ALLEN', 'SALESMAN', 7698, '1981-02-20', 1600, 300, 30),
-            (7521, 'WARD', 'SALESMAN', 7698, '1981-02-22', 1250, 500, 30),
-            (7566, 'JONES', 'MANAGER', 7839, '1981-04-02', 2975, None, 20),
-            (7654, 'MARTIN', 'SALESMAN', 7698, '1981-09-28', 1250, 1400, 30),
-            (7698, 'BLAKE', 'MANAGER', 7839, '1981-05-01', 2850, None, 30),
-            (7782, 'CLARK', 'MANAGER', 7839, '1981-06-09', 2450, None, 10),
-            (7788, 'SCOTT', 'ANALYST', 7566, '1987-04-19', 3000, None, 20),
-            (7839, 'KING', 'PRESIDENT', None, '1981-11-17', 5000, None, 10),
-            (7844, 'TURNER', 'SALESMAN', 7698, '1981-09-08', 1500, 0, 30),
-            (7876, 'ADAMS', 'CLERK', 7788, '1987-05-23', 1100, None, 20),
-            (7900, 'JAMES', 'CLERK', 7698, '1981-12-03', 950, None, 30),
-            (7902, 'FORD', 'ANALYST', 7566, '1981-12-03', 3000, None, 20),
-            (7934, 'MILLER', 'CLERK', 7782, '1982-01-23', 1300, None, 10)
-        ]
-        cursor.executemany("INSERT INTO EMP VALUES (?, ?, ?, ?, ?, ?, ?, ?)", emps)
-
-    # SALGRADE table
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS SALGRADE (
-        GRADE NUMBER,
-        LOSAL NUMBER,
-        HISAL NUMBER
-    )
-    """)
-    cursor.execute("SELECT count(*) FROM SALGRADE")
-    if cursor.fetchone()[0] == 0:
-        grades = [
-            (1, 700, 1200),
-            (2, 1201, 1400),
-            (3, 1401, 2000),
-            (4, 2001, 3000),
-            (5, 3001, 9999)
-        ]
-        cursor.executemany("INSERT INTO SALGRADE VALUES (?, ?, ?)", grades)
-
-    # BONUS table
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS BONUS (
-        ENAME VARCHAR2(10),
-        JOB VARCHAR2(9),
-        SAL NUMBER,
-        COMM NUMBER
-    )
-    """)
-
-    # user_source table for PL/SQL stored procedures/functions
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS user_source (
-        name VARCHAR2(100) PRIMARY KEY,
-        type VARCHAR2(20),
-        text TEXT
-    )
-    """)
-    
-    conn.commit()
-    conn.close()
-
 def execute_sql(sql_script, params=None):
     """Executes one or more SQL statements and returns the result of the last SELECT statement, or affected rows."""
     conn = get_connection()
@@ -307,9 +205,9 @@ def get_schema():
         cursor.execute(f"PRAGMA table_info({table})")
         cols = [{'name': r['name'], 'type': r['type'], 'pk': bool(r['pk'])} for r in cursor.fetchall()]
         
-        # Fetch 5 sample rows
+        # Fetch 50 sample rows for live preview
         try:
-            cursor.execute(f"SELECT * FROM {table} LIMIT 5")
+            cursor.execute(f"SELECT * FROM {table} LIMIT 50")
             sample_rows = [list(row) for row in cursor.fetchall()]
         except Exception:
             sample_rows = []
