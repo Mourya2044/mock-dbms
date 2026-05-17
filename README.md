@@ -8,6 +8,7 @@ Since standard lightweight databases like SQLite do not support PL/SQL (Oracle's
 
 - **Stunning Minimalist UI**: Clean, high-contrast dark mode interface focusing on crisp typography and optimal workflow.
 - **Classic Practice Datasets**: Pre-loaded with Oracle's standard `EMP`, `DEPT`, `SALGRADE`, `BONUS`, and `DUAL` tables.
+- **AI Assistant Integration (Gemini 2.5 Flash)**: Features an "Ask AI" input bar directly above the SQL editor. Ask it to generate table definitions or insert mock data in plain English, and it will automatically generate and execute the SQL.
 - **Oracle Compatibility Layer**: Emulates Oracle SQL built-in functions including `sysdate`, `systimestamp`, `nvl`, `nvl2`, `concat`, `to_char`, `to_date`, `to_number`, `trunc`, `mod`, `initcap`, `lpad`, `rpad`.
 - **Custom PL/SQL Engine**: Supports core procedural constructs:
   - Anonymous blocks (`DECLARE ... BEGIN ... EXCEPTION ... END;`)
@@ -22,20 +23,40 @@ Since standard lightweight databases like SQLite do not support PL/SQL (Oracle's
 
 ## Installation & Running
 
-1. Ensure Python 3.9+ is installed.
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
+### 1. Prerequisites
+- Python 3.9+ installed.
+- A Google Gemini API key (available via [Google AI Studio](https://aistudio.google.com/app/apikey)).
+
+### 2. Environment Setup
+Clone or open the project folder, then set up your environment variables:
+1. Rename the `.env.example` file to `.env`.
+2. Open `.env` and add your Gemini API key:
+   ```env
+   GEMINI_API_KEY=AIzaSy...your_api_key_here...
    ```
-3. Run the application:
-   ```bash
-   python app.py
-   ```
-4. Open your browser and navigate to `http://127.0.0.1:8080`.
+
+### 3. Install Dependencies
+Install the required packages (including `aiohttp`, `google-genai`, and `python-dotenv`):
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Start the Server
+Run the asynchronous web application:
+```bash
+python app.py
+```
+Open your browser and navigate to `http://127.0.0.1:8080`.
 
 ## Quick Practice Examples
 
-### 1. Pure SQL
+### 1. AI Assistant Prompt
+Type the following into the **Ask AI** bar above the editor:
+> *"Create a table for library books with 5 rows of mock data"*
+
+The AI will automatically generate and execute the DDL and DML statements, updating your Schema Explorer instantly!
+
+### 2. Pure SQL
 ```sql
 SELECT empno, ename, job, sal, deptno 
 FROM emp 
@@ -43,7 +64,7 @@ WHERE sal > 2000
 ORDER BY sal DESC;
 ```
 
-### 2. Cursor FOR Loop (PL/SQL)
+### 3. Cursor FOR Loop (PL/SQL)
 ```sql
 DECLARE
     CURSOR c_emp IS SELECT ename, sal FROM emp WHERE deptno = 30;
@@ -55,7 +76,7 @@ BEGIN
 END;
 ```
 
-### 3. Stored Procedure Creation
+### 4. Stored Procedure Creation
 ```sql
 CREATE OR REPLACE PROCEDURE award_bonus(p_empno NUMBER, p_bonus NUMBER) AS
     v_ename VARCHAR2(20);
