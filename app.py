@@ -27,7 +27,22 @@ async def handle_ai(request):
         # Initialize client
         client = genai.Client(api_key=api_key)
         
-        system_msg = "You are an AI assistant for an Oracle SQL practice playground. The user will ask you to create tables or insert mock data. Output ONLY valid SQL statements (DDL/DML) separated by semicolons. Do not include markdown formatting, explanations, or any other text."
+        # Fetch current database schema to provide context to AI
+        current_schema = db.get_schema()
+        schema_context = "Current Database Schema:\n"
+        for table_name, table_info in current_schema.items():
+            cols = ", ".join([f"{c['name']} ({c['type']})" for c in table_info['columns']])
+            schema_context += f"- Table: {table_name} | Columns: {cols}\n"
+            if table_info['sample_data']:
+                sample_strs = [str(row) for row in table_info['sample_data'][:2]] # show up to 2 sample rows
+                schema_context += f"  Sample rows: {sample_strs}\n"
+        
+        system_msg = (
+            "You are an expert AI assistant for an Oracle SQL practice playground.\n"
+            f"{schema_context}\n"
+            "The user will ask you to create tables, insert mock data, or perform queries/actions on existing tables.\n"
+            "Output ONLY valid SQL statements (DDL/DML/Queries) separated by semicolons. Do not include markdown formatting, explanations, or any other text."
+        )
         
         # Generate content asynchronously
         response = await client.aio.models.generate_content(
